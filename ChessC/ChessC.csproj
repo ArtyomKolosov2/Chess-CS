@@ -7,10 +7,12 @@
     <Company>AKA INC</Company>
     <PackageIcon>chess_icon-icons.com_65163.ico</PackageIcon>
     <PackageIconUrl />
+    <ApplicationIcon>C:\Users\User\Desktop\chess_icon-icons.com_65163.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>

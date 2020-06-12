@@ -46,14 +46,128 @@ namespace ChessClasses
         {
             this.chess_cord = new Tuple<int, int>(x, y);
             this.chess_code = code;
-            this.chess_repr = "*";
-            this.chess_steps = new List<Tuple<int, int>>();
-            this.chess_steps.Add(new Tuple<int, int>(0, 1));
+            if (code != 0)
+            {
+                this.chess_repr = "♙";
+            }
+            else
+            {
+                this.chess_repr = "♟";
+            }
+            this.chess_steps = new List<Tuple<int, int>>
+            {
+                new Tuple<int, int>(0, 1)
+            };
         }
         public bool IsStarted
         {
             get { return this.is_started; }
             set { this.is_started = value; }
+        }
+    }
+
+    public class Horse : ChessClass
+    {
+        public Horse(int x, int y, int code)
+        {
+            this.chess_cord = new Tuple<int, int>(x, y);
+            this.chess_code = code;
+            if (code != 0)
+            {
+                this.chess_repr = "♘";
+            }
+            else
+            {
+                this.chess_repr = "♞";
+            }
+            this.chess_steps = new List<Tuple<int, int>>
+            {
+                new Tuple<int, int>(0, 1)
+            };
+        }
+    }
+
+    public class Rook : ChessClass
+    {
+        public Rook(int x, int y, int code)
+        {
+            this.chess_cord = new Tuple<int, int>(x, y);
+            this.chess_code = code;
+            if (code != 0)
+            {
+                this.chess_repr = "♖";
+            }
+            else
+            {
+                this.chess_repr = "♜";
+            }
+            this.chess_steps = new List<Tuple<int, int>>
+            {
+                new Tuple<int, int>(0, 1)
+            };
+        }
+    }
+
+    public class Elephant : ChessClass
+    {
+        public Elephant(int x, int y, int code)
+        {
+            this.chess_cord = new Tuple<int, int>(x, y);
+            this.chess_code = code;
+            if (code != 0)
+            {
+                this.chess_repr = "♗";
+            }
+            else
+            {
+                this.chess_repr = "♝";
+            }
+            this.chess_steps = new List<Tuple<int, int>>
+            {
+                new Tuple<int, int>(0, 1)
+            };
+        }
+    }
+
+    public class Queen : ChessClass
+    {
+        public Queen(int x, int y, int code)
+        {
+            this.chess_cord = new Tuple<int, int>(x, y);
+            this.chess_code = code;
+            if (code != 0)
+            {
+                this.chess_repr = "♕";
+            }
+            else
+            {
+                this.chess_repr = "♛";
+            }
+            this.chess_steps = new List<Tuple<int, int>>
+            {
+                new Tuple<int, int>(0, 1)
+            };
+        }
+    }
+
+    public class King : ChessClass
+    {
+        public King(int x, int y, int code)
+        {
+            this.chess_cord = new Tuple<int, int>(x, y);
+            this.chess_code = code;
+            if (code != 0)
+            {
+                this.chess_repr = "♔";
+            }
+            else
+            {
+                this.chess_repr = "♚";
+            }
+            this.chess_steps = new List<Tuple<int, int>>
+            {
+                new Tuple<int, int>(0, 1)
+            };
         }
     }
 }

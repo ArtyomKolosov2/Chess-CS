@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 using ChessClasses;
 
@@ -8,16 +10,81 @@ namespace ChessC
     {
         static void Main(string[] args)
         {
-            Console.OutputEncoding = Encoding.UTF8;
-            Console.InputEncoding = Encoding.UTF8;
-            Board board = new Board();
-            for (int i = 0; i < 10; i++)
-            {
-                board.add_chess(new ChessClasses.Pawn(0, i, 1));
-            }
-            Display.show_table(board);
+            Console.SetWindowSize(20, 12);
+            Console.OutputEncoding = Encoding.Unicode;
+            Console.InputEncoding = Encoding.Unicode;
+            SetConsoleFont();
+            Console.Title = "ChessesInConsole";
+            GameEngine gameEngine = new GameEngine();
+            gameEngine.initialize_board();
+            Display.show_table(gameEngine.GetBoard);
             Console.Write('\n');
             Console.ReadKey();
         }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        internal unsafe struct CONSOLE_FONT_INFO_EX
+        {
+            internal uint cbSize;
+            internal uint nFont;
+            internal COORD dwFontSize;
+            internal int FontFamily;
+            internal int FontWeight;
+            internal fixed char FaceName[LF_FACESIZE];
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct COORD
+        {
+            internal short X;
+            internal short Y;
+
+            internal COORD(short x, short y)
+            {
+                X = x;
+                Y = y;
+            }
+        }
+        private const int STD_OUTPUT_HANDLE = -11;
+        private const int TMPF_TRUETYPE = 4;
+        private const int LF_FACESIZE = 32;
+        private static IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool SetCurrentConsoleFontEx(
+            IntPtr consoleOutput,
+            bool maximumWindow,
+            ref CONSOLE_FONT_INFO_EX consoleCurrentFontEx);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetStdHandle(int dwType);
+
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern int SetConsoleFont(
+            IntPtr hOut,
+            uint dwFontNum
+            );
+        public static void SetConsoleFont(string fontName = "NSimSun")
+        {
+            unsafe
+            {
+                IntPtr hnd = GetStdHandle(STD_OUTPUT_HANDLE);
+                if (hnd != INVALID_HANDLE_VALUE)
+                {
+                    CONSOLE_FONT_INFO_EX info = new CONSOLE_FONT_INFO_EX();
+                    info.cbSize = (uint)Marshal.SizeOf(info);
+                    CONSOLE_FONT_INFO_EX newInfo = new CONSOLE_FONT_INFO_EX();
+                    newInfo.cbSize = (uint)Marshal.SizeOf(newInfo);
+                    newInfo.FontFamily = TMPF_TRUETYPE;
+                    IntPtr ptr = new IntPtr(newInfo.FaceName);
+                    Marshal.Copy(fontName.ToCharArray(), 0, ptr, fontName.Length);
+                    short size = 72;
+                    newInfo.dwFontSize = new COORD(size, size);
+                    newInfo.FontWeight = info.FontWeight;
+                    SetCurrentConsoleFontEx(hnd, false, ref newInfo);
+                }
+            }
+        }
+        
     }
 }
