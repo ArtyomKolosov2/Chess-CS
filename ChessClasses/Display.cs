@@ -17,6 +17,11 @@ namespace ChessClasses
             }
             Console.Write("\n");
         }
+
+        public static void show_info()
+        {
+            ;
+        }
         public static void show_table(Board board)
         {
             char symb_ver = '8',       

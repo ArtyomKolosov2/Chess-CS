@@ -10,18 +10,33 @@ namespace ChessC
     {
         static void Main(string[] args)
         {
-            Console.SetWindowSize(20, 12);
-            Console.OutputEncoding = Encoding.Unicode;
-            Console.InputEncoding = Encoding.Unicode;
-            SetConsoleFont();
-            Console.Title = "ChessesInConsole";
+            set_console_settings(size:60);
+            Console.Title = "Chesses In Console Alpha";
             GameEngine gameEngine = new GameEngine();
             gameEngine.initialize_board();
+            gameEngine.show_dict();
             Display.show_table(gameEngine.GetBoard);
+            for (int i = 0; i < 15; i++)
+            {
+                gameEngine.get_chess();
+            }
             Console.Write('\n');
-            Console.ReadKey();
+            Console.ReadLine();
         }
 
+        static void set_console_settings(
+            int sizeX=20, 
+            int sizeY=12, 
+            string font = "NSimSun",
+            short size = 72)
+        {
+            Console.SetWindowSize(sizeX, sizeY);
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.OutputEncoding = Encoding.Unicode;
+            Console.InputEncoding = Encoding.Unicode;
+            SetConsoleFont(font, size);
+        }
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         internal unsafe struct CONSOLE_FONT_INFO_EX
         {
@@ -60,11 +75,8 @@ namespace ChessC
 
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern int SetConsoleFont(
-            IntPtr hOut,
-            uint dwFontNum
-            );
-        public static void SetConsoleFont(string fontName = "NSimSun")
+        static extern int SetConsoleFont(IntPtr hOut, uint dwFontNum);
+        public static void SetConsoleFont(string fontName, short size)
         {
             unsafe
             {
@@ -77,8 +89,7 @@ namespace ChessC
                     newInfo.cbSize = (uint)Marshal.SizeOf(newInfo);
                     newInfo.FontFamily = TMPF_TRUETYPE;
                     IntPtr ptr = new IntPtr(newInfo.FaceName);
-                    Marshal.Copy(fontName.ToCharArray(), 0, ptr, fontName.Length);
-                    short size = 72;
+                    Marshal.Copy(fontName.ToCharArray(), 0, ptr, fontName.Length);                   
                     newInfo.dwFontSize = new COORD(size, size);
                     newInfo.FontWeight = info.FontWeight;
                     SetCurrentConsoleFontEx(hnd, false, ref newInfo);

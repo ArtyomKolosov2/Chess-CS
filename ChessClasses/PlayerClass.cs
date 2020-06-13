@@ -5,21 +5,34 @@ namespace ChessClasses
     public class Player
     {
         private int chess_code = 0;
-        private string name;
+        private string name = null;
+
+        public Player() { }
+        public Player(string name, int chess_code)
+        {
+            this.name = name;
+            this.chess_code = chess_code;
+        }
+        public Player(int chess_code)
+        {
+            this.chess_code = chess_code;
+        }
         public void move(Tuple<int, int> cords)
         {
             ;
         }
-
+        public override string ToString()
+        {
+            return Name + $" chess_code:{chess_code}";
+        }
         public string Name
         {
-            get {return this.name; }
+            get {return this.name ?? $"Player{chess_code+1}"; }
             set {this.name = value; }
         }
         public int ChessCode
         {
             get {return this.chess_code; }
-            set {this.chess_code = value; }
         }
     }
 }

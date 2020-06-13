@@ -7,13 +7,38 @@ namespace ChessClasses
     public class ChessClass
     {
         protected int chess_code = 0;
-        protected string chess_repr = "";
+        protected string chess_repr = null;
         protected Tuple<int, int> chess_cord;
         protected List<Tuple<int, int>> chess_steps;
 
         public override string ToString()
         {
-            return this.chess_repr;
+            return this.chess_repr ?? "";
+        }
+
+        protected Tuple<int, int> sum_tuples(Tuple<int, int> first, Tuple<int, int> second)
+        {
+            Tuple<int, int> new_tuple = new Tuple<int, int>
+                (
+                first.Item1 + second.Item1,
+                first.Item2 + second.Item2
+                );
+            return new_tuple;
+        }
+
+        public virtual bool check_step(Tuple<int, int> destination)
+        {
+            bool result = false;
+            foreach (var step in chess_steps)
+            {
+                Tuple<int, int> new_cord = sum_tuples(step, chess_cord);
+                if (new_cord.Equals(destination))
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;         
         }
 
         public int ChessCode
@@ -34,6 +59,7 @@ namespace ChessClasses
         public Tuple<int, int> GetCords
         {
             get { return this.chess_cord; }
+            set { chess_cord = value; }
         }
         
     }
@@ -82,7 +108,14 @@ namespace ChessClasses
             }
             this.chess_steps = new List<Tuple<int, int>>
             {
-                new Tuple<int, int>(0, 1)
+                new Tuple<int, int>(2, -1),
+                new Tuple<int, int>(-2, -1),
+                new Tuple<int, int>(1, -2),
+                new Tuple<int, int>(-1, -2),
+                new Tuple<int, int>(2, 1),
+                new Tuple<int, int>(-2, 1),
+                new Tuple<int, int>(1, 2),
+                new Tuple<int, int>(-1, 2),
             };
         }
     }
