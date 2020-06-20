@@ -7,7 +7,7 @@
     <Company>AKA INC</Company>
     <PackageIcon>chess_icon-icons.com_65163.ico</PackageIcon>
     <PackageIconUrl />
-    <ApplicationIcon>C:\Users\User\Desktop\chess_icon-icons.com_65163.ico</ApplicationIcon>
+    <ApplicationIcon>1.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

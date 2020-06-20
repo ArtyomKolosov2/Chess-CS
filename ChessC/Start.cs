@@ -1,24 +1,22 @@
 ﻿using System;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using ChessClasses;
 
 namespace ChessC
 {
-    class Program
+    class Start
     {
         static void Main(string[] args)
         {
-            set_console_settings(size:60);
-            Console.Title = "Chesses In Console Alpha";
-            GameEngine gameEngine = new GameEngine();
+            set_console_settings(size:55);
+            GameEngineClass gameEngine = new GameEngineClass();
             gameEngine.initialize_board();
             gameEngine.show_dict();
-            Display.show_table(gameEngine.GetBoard);
+            DisplayClass.show_table(gameEngine.GetBoard);
             for (int i = 0; i < 15; i++)
             {
-                gameEngine.get_chess();
+                gameEngine.move_chess();
             }
             Console.Write('\n');
             Console.ReadLine();
@@ -35,6 +33,7 @@ namespace ChessC
             Console.BackgroundColor = ConsoleColor.White;
             Console.OutputEncoding = Encoding.Unicode;
             Console.InputEncoding = Encoding.Unicode;
+            Console.Title = "Chesses In Console Alpha";
             SetConsoleFont(font, size);
         }
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]

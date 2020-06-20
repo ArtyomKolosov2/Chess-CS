@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ChessClasses
 {
-    public class GameEngine
+    public class GameEngineClass
     {
-        private Board board;
+        private BoardClass board;
         private Player PlayerOne;
         private Player PlayerTwo;
         private Dictionary<string, int> codes;
         
-        public GameEngine()
+        public GameEngineClass()
         {
-            this.board = new Board();
+            this.board = new BoardClass();
             PlayerOne = new Player(0);
             PlayerTwo = new Player(1);
             codes = new Dictionary<string, int>();
@@ -52,21 +53,8 @@ namespace ChessClasses
             }
             return result;
         }
-
-        private ChessClass find_chess_by_coords(Tuple<int, int> cords)
-        {
-            ChessClass result = null;
-            for (int i = 0; i < board.Chesses.Count; i++)
-            {
-                if (board.Chesses[i].GetCords.Equals(cords))
-                {
-                    result = board.Chesses[i];
-                    break;
-                }
-            }
-            return result;
-        }
-        public void get_chess()
+       
+        public async void move_chess()
         {
             Tuple<int, int> user_cord = get_user_cord("Input coords: ");
             for (int i = 0; i < board.Chesses.Count && user_cord != null; i++)
@@ -75,17 +63,29 @@ namespace ChessClasses
                 {
                     ChessClass chess = board.Chesses[i];
                     Tuple<int, int> new_cord = get_user_cord("Input new coords: ") ?? user_cord;
-                    if (chess.check_step(new_cord)) 
+                    bool step = await Task.Run(() => chess.check_step(new_cord, board));
+                    if (step) 
                     {
-                        ChessClass second_chess = find_chess_by_coords(new_cord);
-                        if (is_attack_possible(chess, second_chess) && second_chess != null)
+                        ChessClass second_chess = board.find_chess_by_coords(new_cord);
+                        bool possibe = await Task.Run(() => is_attack_possible(chess, second_chess));
+                        if (possibe && second_chess != null)
                         {
                             board.Chesses.Remove(second_chess);
                             chess.GetCords = new_cord;
+                            if (chess is Pawn)
+                            {
+                                Pawn pawn = (Pawn)chess;
+                                pawn.IsStarted = true;
+                            }
                         }
                         else if (second_chess == null)
                         {
                             chess.GetCords = new_cord;
+                            if (chess is Pawn)
+                            {
+                                Pawn pawn = (Pawn)chess;
+                                pawn.IsStarted = true;
+                            }
                         }
                         else
                         {
@@ -99,14 +99,8 @@ namespace ChessClasses
                     break;
                 }
             }
-            Display.show_table(board);            
+            DisplayClass.show_table(board);            
         }
-
-        public void move_chess()
-        {
-
-        }
-
         private Tuple<int, int> get_user_cord(string message)
         {
             Console.WriteLine(message);
@@ -123,48 +117,54 @@ namespace ChessClasses
                 Console.WriteLine("KeyError!");
                 result = null;
             }
+
+            catch (IndexOutOfRangeException)
+            {
+                Console.WriteLine("IndexError!");
+                result = null;
+            }
             
             return result;
         }
         public void initialize_board()
         {
             int i = 0;
-            for (i = 0; i < this.board.Width; i++)
+            for (i = 0; i < board.Width; i++)
             {
-                this.board.add_chess(new Pawn(i, 1, 0));
-                this.board.add_chess(new Pawn(i, 6, 1));
+                board.add_chess(new Pawn(i, 1, 0));
+                board.add_chess(new Pawn(i, 6, 1));
                 if (i == 2 || i == 5)
                 {
-                    this.board.add_chess(new Elephant(i, 0, 0));
-                    this.board.add_chess(new Elephant(i, 7, 1));
+                    board.add_chess(new Elephant(i, 0, 0));
+                    board.add_chess(new Elephant(i, 7, 1));
                 }
                 else if (i == 0 || i == 7)
                 {
-                    this.board.add_chess(new Rook(i, 0, 0));
-                    this.board.add_chess(new Rook(i, 7, 1));
+                    board.add_chess(new Rook(i, 0, 0));
+                    board.add_chess(new Rook(i, 7, 1));
                 }
                 else if (i == 1 || i == 6)
                 { 
-                    this.board.add_chess(new Horse(i, 0, 0));
-                    this.board.add_chess(new Horse(i, 7, 1));
+                    board.add_chess(new Horse(i, 0, 0));
+                    board.add_chess(new Horse(i, 7, 1));
                 }
                 else if (i == 3)
                 {
-                    this.board.add_chess(new Queen(i, 0, 0));
-                    this.board.add_chess(new Queen(i, 7, 1));
+                    board.add_chess(new Queen(i, 0, 0));
+                    board.add_chess(new Queen(i, 7, 1));
                 }
                 else if (i == 4)
                 {
-                    this.board.add_chess(new King(i, 0, 0));
-                    this.board.add_chess(new King(i, 7, 1));
+                    board.add_chess(new King(i, 0, 0));
+                    board.add_chess(new King(i, 7, 1));
                 }
 
             }
         }
 
-        public Board GetBoard 
+        public BoardClass GetBoard 
         {
-            get { return this.board; }
+            get { return board; }
         }
     }
 }

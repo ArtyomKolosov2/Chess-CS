@@ -13,7 +13,16 @@ namespace ChessClasses
 
         public override string ToString()
         {
-            return this.chess_repr ?? "";
+            return chess_repr ?? "";
+        }
+
+        public static bool operator true(ChessClass cls)
+        {
+            return cls.chess_repr != null;
+        }
+        public static bool operator false(ChessClass cls)
+        {
+            return cls.chess_repr == null;
         }
 
         protected Tuple<int, int> sum_tuples(Tuple<int, int> first, Tuple<int, int> second)
@@ -26,7 +35,7 @@ namespace ChessClasses
             return new_tuple;
         }
 
-        public virtual bool check_step(Tuple<int, int> destination)
+        public virtual bool check_step(Tuple<int, int> destination, BoardClass board)
         {
             bool result = false;
             foreach (var step in chess_steps)
@@ -37,28 +46,29 @@ namespace ChessClasses
                     result = true;
                     break;
                 }
+          
             }
             return result;         
         }
 
         public int ChessCode
         {
-            get { return this.chess_code; }
+            get { return chess_code; }
         }
 
         public List<Tuple<int, int>> ChessSteps
         {
-            get { return this.chess_steps; }
+            get { return chess_steps; }
         }
 
         public string ChessRepr
         {
-            get { return this.chess_repr; }
+            get { return chess_repr; }
         }
 
         public Tuple<int, int> GetCords
         {
-            get { return this.chess_cord; }
+            get { return chess_cord; }
             set { chess_cord = value; }
         }
         
@@ -67,28 +77,85 @@ namespace ChessClasses
     public class Pawn : ChessClass
     {
         private bool is_started = false;
-        
+        private List<Tuple<int, int>> attack_steps;
         public Pawn(int x, int y, int code)
         {
-            this.chess_cord = new Tuple<int, int>(x, y);
-            this.chess_code = code;
+            chess_cord = new Tuple<int, int>(x, y);
+            chess_code = code;
             if (code != 0)
             {
-                this.chess_repr = "♙";
+                chess_repr = "♙";
             }
             else
             {
-                this.chess_repr = "♟";
+                chess_repr = "♟";
             }
-            this.chess_steps = new List<Tuple<int, int>>
+            Tuple<int, int> step;
+            if (code != 0)
             {
-                new Tuple<int, int>(0, 1)
+                attack_steps = new List<Tuple<int, int>>
+                {
+                new Tuple<int, int>(1, -1),
+                new Tuple<int, int>(-1, -1)
+                };
+                step = new Tuple<int, int>(0, -1);
+            }
+            else
+            {
+                attack_steps = new List<Tuple<int, int>>
+                {
+                new Tuple<int, int>(-1, 1),
+                new Tuple<int, int>(1, 1)
+                };
+                step = new Tuple<int, int>(0, 1);
+            }
+            chess_steps = new List<Tuple<int, int>>
+            {
+                step
             };
+            
         }
+
+        public override bool check_step(Tuple<int, int> destination, BoardClass board)
+        {
+            int repeat = is_started ? 1 : 2;
+            bool result = false;
+            Tuple<int, int> step_one = sum_tuples(chess_cord, attack_steps[0]);
+            Tuple<int, int> step_two = sum_tuples(chess_cord, attack_steps[1]);
+            bool one = (step_one.Equals(destination) && board.find_chess_by_coords(step_one) != null);
+            bool two = (step_two.Equals(destination) && board.find_chess_by_coords(step_two) != null);
+            if (one || two)
+            {
+                result = true;
+            }
+            foreach (var step in chess_steps)
+            {
+                if (result)
+                {
+                    break;
+                }
+                Tuple<int, int> new_cord = chess_cord;
+                for (int i = 0; i < repeat; i++)
+                {
+                    new_cord = sum_tuples(step, new_cord);
+                    if (board.find_chess_by_coords(new_cord) != null)
+                    {
+                        break;
+                    }
+                    if (new_cord.Equals(destination))
+                    {
+                        result = true;
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+
         public bool IsStarted
         {
-            get { return this.is_started; }
-            set { this.is_started = value; }
+            get { return is_started; }
+            set { is_started = value; }
         }
     }
 
@@ -136,8 +203,42 @@ namespace ChessClasses
             }
             this.chess_steps = new List<Tuple<int, int>>
             {
-                new Tuple<int, int>(0, 1)
+                new Tuple<int, int>(0, 1),
+                new Tuple<int, int>(0, -1),
+                new Tuple<int, int>(1, 0),
+                new Tuple<int, int>(-1, 0),
+
             };
+        }
+        public override bool check_step(Tuple<int, int> destination, BoardClass board)
+        {
+            int start = -1;
+            bool result = false;
+            foreach (var step in chess_steps)
+            {
+                Tuple<int, int> new_cord = chess_cord;
+
+                while (new_cord.Item1 < board.Height && new_cord.Item2 < board.Width && new_cord.Item1 > start && new_cord.Item2 > start)
+                {
+                    new_cord = sum_tuples(step, new_cord);
+                    if (new_cord.Equals(destination))
+                    {
+                        result = true;
+                        break;
+                    }
+                    if (board.find_chess_by_coords(new_cord) != null)
+                    {
+                        break;
+                    }
+                }
+
+                if (result)
+                {
+                    break;
+                }
+            }
+            return result;
+
         }
     }
 
@@ -157,8 +258,45 @@ namespace ChessClasses
             }
             this.chess_steps = new List<Tuple<int, int>>
             {
-                new Tuple<int, int>(0, 1)
+                new Tuple<int, int>(1, 1),
+                new Tuple<int, int>(-1, -1),
+                new Tuple<int, int>(1, -1),
+                new Tuple<int, int>(-1, 1),
+
             };
+
+
+        }
+
+        public override bool check_step(Tuple<int, int> destination, BoardClass board)
+        {
+            int start = -1;
+            bool result = false;
+            foreach (var step in chess_steps)
+            {
+                Tuple<int, int> new_cord = chess_cord;
+
+                while (new_cord.Item1 < board.Height && new_cord.Item2 < board.Width && new_cord.Item1 > start && new_cord.Item2 > start)
+                {
+                    new_cord = sum_tuples(step, new_cord);
+                    if (new_cord.Equals(destination))
+                    {
+                        result = true;
+                        break;
+                    }
+                    if (board.find_chess_by_coords(new_cord) != null)
+                    {
+                        break;
+                    }
+                }
+
+                if (result)
+                {
+                    break;
+                }
+            }
+            return result;
+
         }
     }
 
@@ -178,8 +316,45 @@ namespace ChessClasses
             }
             this.chess_steps = new List<Tuple<int, int>>
             {
-                new Tuple<int, int>(0, 1)
+                new Tuple<int, int>(0, -1),
+                new Tuple<int, int>(0, 1),
+                new Tuple<int, int>(1, 0),
+                new Tuple<int, int>(-1, 0),
+                new Tuple<int, int>(1, 1),
+                new Tuple<int, int>(-1, -1),
+                new Tuple<int, int>(-1, 1),
+                new Tuple<int, int>(1, -1),
             };
+        }
+        public override bool check_step(Tuple<int, int> destination, BoardClass board)
+        {
+            int start = -1;
+            bool result = false;
+            foreach (var step in chess_steps)
+            {
+                Tuple<int, int> new_cord = chess_cord;
+
+                while (new_cord.Item1 < board.Height && new_cord.Item2 < board.Width && new_cord.Item1 > start && new_cord.Item2 > start)
+                {
+                    new_cord = sum_tuples(step, new_cord);
+                    if (new_cord.Equals(destination))
+                    {
+                        result = true;
+                        break;
+                    }
+                    if (board.find_chess_by_coords(new_cord) != null)
+                    {
+                        break;
+                    }
+                }
+                
+                if (result)
+                {
+                    break;
+                }
+            }
+            return result;
+
         }
     }
 
@@ -199,7 +374,15 @@ namespace ChessClasses
             }
             this.chess_steps = new List<Tuple<int, int>>
             {
-                new Tuple<int, int>(0, 1)
+                new Tuple<int, int>(0, -1),
+                new Tuple<int, int>(0, 1),
+                new Tuple<int, int>(1, 0),
+                new Tuple<int, int>(-1, 0),
+                new Tuple<int, int>(1, 1),
+                new Tuple<int, int>(-1, -1),
+                new Tuple<int, int>(-1, 1),
+                new Tuple<int, int>(1, -1),
+                
             };
         }
     }

@@ -27,12 +27,12 @@ namespace ChessClasses
         }
         public string Name
         {
-            get {return this.name ?? $"Player{chess_code+1}"; }
-            set {this.name = value; }
+            get {return name ?? $"Player{chess_code+1}"; }
+            set {name = value; }
         }
         public int ChessCode
         {
-            get {return this.chess_code; }
+            get {return chess_code; }
         }
     }
 }

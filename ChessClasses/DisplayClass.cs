@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ChessClasses
 {
-    static public class Display
+    static public class DisplayClass
     {
         private static void print_alphas()
         {
@@ -22,7 +22,7 @@ namespace ChessClasses
         {
             ;
         }
-        public static void show_table(Board board)
+        public static void show_table(BoardClass board)
         {
             char symb_ver = '8',       
                  space_sybmol_white = '•',
