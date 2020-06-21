@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ChessClasses
@@ -14,7 +13,7 @@ namespace ChessClasses
         
         public GameEngineClass()
         {
-            this.board = new BoardClass();
+            board = new BoardClass();
             PlayerOne = new Player(0);
             PlayerTwo = new Player(1);
             codes = new Dictionary<string, int>();
@@ -53,6 +52,11 @@ namespace ChessClasses
             }
             return result;
         }
+
+        private void gameover(ChessClass chess)
+        {
+            DisplayClass.show_gameover_info(chess);
+        }
        
         public async void move_chess()
         {
@@ -71,6 +75,11 @@ namespace ChessClasses
                         if (possibe && second_chess != null)
                         {
                             board.Chesses.Remove(second_chess);
+                            if (second_chess is King)
+                            {
+                                await Task.Run(() => gameover(second_chess));
+                                break;
+                            }
                             chess.GetCords = new_cord;
                             if (chess is Pawn)
                             {
@@ -99,7 +108,7 @@ namespace ChessClasses
                     break;
                 }
             }
-            DisplayClass.show_table(board);            
+            DisplayClass.show_table(board);
         }
         private Tuple<int, int> get_user_cord(string message)
         {

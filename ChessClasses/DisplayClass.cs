@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ChessClasses
 {
@@ -21,6 +19,11 @@ namespace ChessClasses
         public static void show_info()
         {
             ;
+        }
+
+        public static void show_gameover_info(ChessClass chess)
+        {
+            Console.WriteLine(chess.get_info());
         }
         public static void show_table(BoardClass board)
         {

@@ -14,7 +14,7 @@ namespace ChessC
             gameEngine.initialize_board();
             gameEngine.show_dict();
             DisplayClass.show_table(gameEngine.GetBoard);
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 300; i++)
             {
                 gameEngine.move_chess();
             }

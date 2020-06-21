@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ChessClasses
 {
@@ -14,6 +13,13 @@ namespace ChessClasses
         public override string ToString()
         {
             return chess_repr ?? "";
+        }
+
+        public string get_info()
+        {
+            string info;
+            info = string.Format("{0} {1}",chess_code != 0 ? "White":"Black", base.ToString());
+            return info;
         }
 
         public static bool operator true(ChessClass cls)
