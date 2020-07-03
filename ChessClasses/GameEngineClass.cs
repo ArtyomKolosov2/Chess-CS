@@ -1,28 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ChessClasses
 {
     public class GameEngineClass
     {
         private BoardClass board;
-        private Player PlayerOne;
-        private Player PlayerTwo;
+        private Player PlayerOneBlack;
+        private Player PlayerTwoWhite;
+
+        public bool GameStarted { get; private set; } = false;
+        public Player CurrentPlayer { get; private set; } = null;
         private Dictionary<string, int> codes;
         
         public GameEngineClass()
         {
             board = new BoardClass();
-            PlayerOne = new Player(0);
-            PlayerTwo = new Player(1);
+            PlayerOneBlack = new Player(0);
+            PlayerTwoWhite = new Player(1);
             codes = new Dictionary<string, int>();
             set_dict();
         }
 
+        
+        public void prepare_to_game()
+        {
+            CurrentPlayer = PlayerTwoWhite;
+            GameStarted = true;
+            initialize_board();
+            DisplayClass.show_table(GetBoard);
+            while (GameStarted)
+            {
+                game_part();
+            }
+        }
+
         public string get_players_info()
         {
-            return $"{PlayerOne} {PlayerTwo}";
+            return $"{PlayerOneBlack} {PlayerTwoWhite}";
         }
 
         private void set_dict()
@@ -55,84 +70,117 @@ namespace ChessClasses
 
         private void gameover(ChessClass chess)
         {
+            GameStarted = false;
             DisplayClass.show_gameover_info(chess);
         }
        
-        public async void move_chess()
+        public void game_part()
         {
             Tuple<int, int> user_cord = get_user_cord("Input coords: ");
+            string message = null;
             for (int i = 0; i < board.Chesses.Count && user_cord != null; i++)
             {                
                 if (board.Chesses[i].GetCords.Equals(user_cord))
                 {
                     ChessClass chess = board.Chesses[i];
                     Tuple<int, int> new_cord = get_user_cord("Input new coords: ") ?? user_cord;
-                    bool step = await Task.Run(() => chess.check_step(new_cord, board));
+                    bool step = chess.check_step(new_cord, board) && chess.ChessCode == CurrentPlayer.ChessCode;
                     if (step) 
                     {
                         ChessClass second_chess = board.find_chess_by_coords(new_cord);
-                        bool possibe = await Task.Run(() => is_attack_possible(chess, second_chess));
+                        bool possibe = is_attack_possible(chess, second_chess);
                         if (possibe && second_chess != null)
                         {
                             board.Chesses.Remove(second_chess);
                             if (second_chess is King)
                             {
-                                await Task.Run(() => gameover(second_chess));
+                                gameover(second_chess);
                                 break;
                             }
                             chess.GetCords = new_cord;
-                            if (chess is Pawn)
+                            if (chess is Pawn pawn)
                             {
-                                Pawn pawn = (Pawn)chess;
                                 pawn.IsStarted = true;
                             }
+                            CurrentPlayer = CurrentPlayer.ChessCode != 0 ? PlayerOneBlack : PlayerTwoWhite;
                         }
                         else if (second_chess == null)
                         {
                             chess.GetCords = new_cord;
-                            if (chess is Pawn)
+                            if (chess is Pawn pawn)
                             {
-                                Pawn pawn = (Pawn)chess;
                                 pawn.IsStarted = true;
                             }
+                            CurrentPlayer = CurrentPlayer.ChessCode != 0 ? PlayerOneBlack : PlayerTwoWhite;
                         }
                         else
                         {
-                            Console.WriteLine("Allied Chess!");
+                            message = "Allied Chess!";
                         }
                     }
                     else
                     {
-                        Console.WriteLine("This step cant exist!");
+                        message = "This step cant exist!";
                     }
                     break;
                 }
             }
-            DisplayClass.show_table(board);
+            DisplayClass.show_table(board, message);
         }
+
+        private bool CheckForCommands(string user_line)
+        {
+            bool is_contains_command = false;
+            switch (user_line.ToLower())
+            {
+                case "exit":
+                    Console.WriteLine("Game Ended!");
+                    GameStarted = false;
+                    is_contains_command = true;
+                    break;
+
+                case "info":
+                    DisplayClass.show_program_info();
+                    break;
+
+                case "save":
+                    Console.WriteLine("Game Saved!");
+                    is_contains_command = true;
+                    // ToDo
+                    break;
+
+                
+            }
+            return is_contains_command;
+        }
+
         private Tuple<int, int> get_user_cord(string message)
         {
             Console.WriteLine(message);
-            Tuple<int, int> result;
-            string[] user_choice = Console.ReadLine().Split();
-            try
+            string user_line = Console.ReadLine();
+            bool is_command = CheckForCommands(user_line);
+            Tuple<int, int> result = null;
+            string[] user_choice = user_line.Split();
+            if (!is_command)
             {
-                int x = codes[user_choice[0].ToLower()] - 1;
-                int y = board.Height - codes[user_choice[1].ToLower()];
-                result = new Tuple<int, int>(x, y);
-            }
-            catch (KeyNotFoundException)
-            {
-                Console.WriteLine("KeyError!");
-                result = null;
-            }
+                try
+                {
+                    int x = codes[user_choice[0].ToLower()] - 1;
+                    int y = board.Height - codes[user_choice[1].ToLower()];
+                    result = new Tuple<int, int>(x, y);
+                }
+                catch (KeyNotFoundException)
+                {
+                    Console.WriteLine("KeyError!");
+                    result = null;
+                }
 
-            catch (IndexOutOfRangeException)
-            {
-                Console.WriteLine("IndexError!");
-                result = null;
+                catch (IndexOutOfRangeException)
+                {
+                    Console.WriteLine("IndexError!");
+                    result = null;
+                }
             }
-            
             return result;
         }
         public void initialize_board()

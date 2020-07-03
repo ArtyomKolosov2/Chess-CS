@@ -16,20 +16,30 @@ namespace ChessClasses
             Console.Write("\n");
         }
 
-        public static void show_info()
+        public static void show_program_info()
         {
-            ;
+            Console.WriteLine(
+                "Welcome to ChessInConsole!\n" +
+                "Rules are the same like in classic chess\n" +
+                "While playing type \"exit\" to stop current game,\n" +
+                "\"save\" to save your game (While Playing),\n" +
+                "\"info\" to show main info about program,\n" +
+                "Enjoy Game!");
         }
 
         public static void show_gameover_info(ChessClass chess)
         {
             Console.WriteLine(chess.get_info());
         }
-        public static void show_table(BoardClass board)
+        public static void show_table(BoardClass board, string message = null)
         {
             char symb_ver = '8',       
                  space_sybmol_white = '•',
                  space_sybmol_black = '•';
+            if (message != null)
+            {
+                Console.WriteLine($"Info: {message}");
+            }
             print_alphas();
             bool flag = false;
             for (int i = 0; i < board.Height; i++, symb_ver--)

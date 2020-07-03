@@ -5,18 +5,17 @@ namespace ChessClasses
 {
     public class BoardClass
     {
-        private List<ChessClass> chesses;
         private int 
             width = 8, 
             height = 8;
         public BoardClass()
         {
-            chesses = new List<ChessClass>();
+            Chesses = new List<ChessClass>();
         }
          
         public void add_chess(ChessClass chess)
         {
-            if (!(chesses.Count > (height * width)))
+            if (!(Chesses.Count > (height * width)))
             {
                Chesses.Add(chess);
             }
@@ -36,10 +35,7 @@ namespace ChessClasses
             return result;
         }
 
-        public List<ChessClass> Chesses
-        {
-            get {return chesses; }
-        }
+        public List<ChessClass> Chesses { get; }
 
         public int Height
         {
