@@ -15,7 +15,7 @@ namespace ChessC
             bool is_started = true;
             while (is_started)
             {
-                Console.Write("Type comand:\n" +
+                Console.Write("Type command:\n" +
                     "Start = Start Game\n" +
                     "Info = Show Main info about program\n" +
                     "Load = Load Saved Game\n" +
