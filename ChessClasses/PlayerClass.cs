@@ -2,6 +2,7 @@
 
 namespace ChessClasses
 {
+    [Serializable]
     public class Player
     {
         private int chess_code = 0;
@@ -23,7 +24,7 @@ namespace ChessClasses
         }
         public override string ToString()
         {
-            return Name + $" chess_code:{chess_code}";
+            return chess_code != 0 ? "White" : "Black"; 
         }
         public string Name
         {
@@ -34,5 +35,6 @@ namespace ChessClasses
         {
             get {return chess_code; }
         }
+
     }
 }

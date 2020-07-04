@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace ChessClasses
 {
@@ -16,6 +18,17 @@ namespace ChessClasses
             Console.Write("\n");
         }
 
+        public static void show_file_info(FileInfo [] array)
+        {
+            foreach (var element in array)
+            {
+                if (element != null)
+                {
+                    Console.WriteLine(element.Name);
+                }
+            }
+        }
+
         public static void show_program_info()
         {
             Console.WriteLine(
@@ -24,21 +37,22 @@ namespace ChessClasses
                 "While playing type \"exit\" to stop current game,\n" +
                 "\"save\" to save your game (While Playing),\n" +
                 "\"info\" to show main info about program,\n" +
-                "Enjoy Game!");
+                "Enjoy Game!\n");
         }
 
         public static void show_gameover_info(ChessClass chess)
         {
             Console.WriteLine(chess.get_info());
         }
-        public static void show_table(BoardClass board, string message = null)
+
+        public static void show_table(BoardClass board, Stack<string> message_buf)
         {
             char symb_ver = '8',       
                  space_sybmol_white = '•',
                  space_sybmol_black = '•';
-            if (message != null)
+            for (int i = 0; i < message_buf.Count; i++)
             {
-                Console.WriteLine($"Info: {message}");
+                Console.WriteLine(message_buf.Pop());
             }
             print_alphas();
             bool flag = false;

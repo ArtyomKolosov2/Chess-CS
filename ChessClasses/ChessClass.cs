@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace ChessClasses
 {
+    [Serializable]
     public class ChessClass
     {
         protected int chess_code = 0;
@@ -79,7 +80,7 @@ namespace ChessClasses
         }
         
     }
-
+    [Serializable]
     public class Pawn : ChessClass
     {
         private bool is_started = false;
@@ -164,22 +165,22 @@ namespace ChessClasses
             set { is_started = value; }
         }
     }
-
+    [Serializable]
     public class Horse : ChessClass
     {
         public Horse(int x, int y, int code)
         {
-            this.chess_cord = new Tuple<int, int>(x, y);
-            this.chess_code = code;
+            chess_cord = new Tuple<int, int>(x, y);
+            chess_code = code;
             if (code != 0)
             {
-                this.chess_repr = "♘";
+                chess_repr = "♘";
             }
             else
             {
-                this.chess_repr = "♞";
+                chess_repr = "♞";
             }
-            this.chess_steps = new List<Tuple<int, int>>
+            chess_steps = new List<Tuple<int, int>>
             {
                 new Tuple<int, int>(2, -1),
                 new Tuple<int, int>(-2, -1),
@@ -192,22 +193,22 @@ namespace ChessClasses
             };
         }
     }
-
+    [Serializable]
     public class Rook : ChessClass
     {
         public Rook(int x, int y, int code)
         {
-            this.chess_cord = new Tuple<int, int>(x, y);
-            this.chess_code = code;
+            chess_cord = new Tuple<int, int>(x, y);
+            chess_code = code;
             if (code != 0)
             {
-                this.chess_repr = "♖";
+                chess_repr = "♖";
             }
             else
             {
-                this.chess_repr = "♜";
+                chess_repr = "♜";
             }
-            this.chess_steps = new List<Tuple<int, int>>
+            chess_steps = new List<Tuple<int, int>>
             {
                 new Tuple<int, int>(0, 1),
                 new Tuple<int, int>(0, -1),
@@ -247,22 +248,22 @@ namespace ChessClasses
 
         }
     }
-
+    [Serializable]
     public class Elephant : ChessClass
     {
         public Elephant(int x, int y, int code)
         {
-            this.chess_cord = new Tuple<int, int>(x, y);
-            this.chess_code = code;
+            chess_cord = new Tuple<int, int>(x, y);
+            chess_code = code;
             if (code != 0)
             {
-                this.chess_repr = "♗";
+                chess_repr = "♗";
             }
             else
             {
-                this.chess_repr = "♝";
+                chess_repr = "♝";
             }
-            this.chess_steps = new List<Tuple<int, int>>
+            chess_steps = new List<Tuple<int, int>>
             {
                 new Tuple<int, int>(1, 1),
                 new Tuple<int, int>(-1, -1),
@@ -305,22 +306,22 @@ namespace ChessClasses
 
         }
     }
-
+    [Serializable]
     public class Queen : ChessClass
     {
         public Queen(int x, int y, int code)
         {
-            this.chess_cord = new Tuple<int, int>(x, y);
-            this.chess_code = code;
+            chess_cord = new Tuple<int, int>(x, y);
+            chess_code = code;
             if (code != 0)
             {
-                this.chess_repr = "♕";
+                chess_repr = "♕";
             }
             else
             {
-                this.chess_repr = "♛";
+                chess_repr = "♛";
             }
-            this.chess_steps = new List<Tuple<int, int>>
+            chess_steps = new List<Tuple<int, int>>
             {
                 new Tuple<int, int>(0, -1),
                 new Tuple<int, int>(0, 1),
@@ -363,22 +364,22 @@ namespace ChessClasses
 
         }
     }
-
+    [Serializable]
     public class King : ChessClass
     {
         public King(int x, int y, int code)
         {
-            this.chess_cord = new Tuple<int, int>(x, y);
-            this.chess_code = code;
+            chess_cord = new Tuple<int, int>(x, y);
+            chess_code = code;
             if (code != 0)
             {
-                this.chess_repr = "♔";
+                chess_repr = "♔";
             }
             else
             {
-                this.chess_repr = "♚";
+                chess_repr = "♚";
             }
-            this.chess_steps = new List<Tuple<int, int>>
+            chess_steps = new List<Tuple<int, int>>
             {
                 new Tuple<int, int>(0, -1),
                 new Tuple<int, int>(0, 1),

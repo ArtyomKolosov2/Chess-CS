@@ -16,14 +16,16 @@ namespace ChessC
             while (is_started)
             {
                 Console.Write("Type comand:\n" +
-                    "Start - Start Game\n" +
+                    "Start = Start Game\n" +
                     "Info = Show Main info about program\n" +
-                    "Exit - Exit From Game\n");
+                    "Load = Load Saved Game\n" +
+                    "Exit = Exit From Game\n");
                 Command = Console.ReadLine();
                 switch (Command.ToLower())
                 {
                     case "start":
                         gameEngine.prepare_to_game();
+                        gameEngine.start_game();
                         break;
 
                     case "exit":
@@ -34,10 +36,16 @@ namespace ChessC
                         DisplayClass.show_program_info();
                         break;
 
+                    case "load":
+                        gameEngine.load_game();
+                        gameEngine.start_game();
+                        break;
+
                     default:
                         Console.WriteLine("Command Error!");
                         break;
                 }
+                
             }
         }
 

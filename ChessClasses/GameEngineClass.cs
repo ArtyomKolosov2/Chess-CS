@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ChessClasses
 {
@@ -12,6 +15,7 @@ namespace ChessClasses
         public bool GameStarted { get; private set; } = false;
         public Player CurrentPlayer { get; private set; } = null;
         private Dictionary<string, int> codes;
+        private Stack<string> message_buf;
         
         public GameEngineClass()
         {
@@ -19,6 +23,7 @@ namespace ChessClasses
             PlayerOneBlack = new Player(0);
             PlayerTwoWhite = new Player(1);
             codes = new Dictionary<string, int>();
+            message_buf = new Stack<string>();
             set_dict();
         }
 
@@ -28,10 +33,19 @@ namespace ChessClasses
             CurrentPlayer = PlayerTwoWhite;
             GameStarted = true;
             initialize_board();
-            DisplayClass.show_table(GetBoard);
-            while (GameStarted)
+        }
+
+        public void start_game()
+        {
+            if (GameStarted)
             {
-                game_part();
+                message_buf.Push($"Move of {CurrentPlayer.ToString()}");
+                DisplayClass.show_table(board, message_buf);
+                while (GameStarted)
+                {
+                    game_part();
+                    DisplayClass.show_table(board, message_buf);
+                }
             }
         }
 
@@ -68,6 +82,78 @@ namespace ChessClasses
             return result;
         }
 
+        private void save_game()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            Console.WriteLine("Input game name: ");
+            string name = Console.ReadLine();
+            name = $"{(name.Length > 0 ? name : "game")}.dat";
+            using (FileStream fs = new FileStream(name, FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fs, board);
+                formatter.Serialize(fs, CurrentPlayer);
+                Console.WriteLine("Game Saved!");
+            }
+        }
+
+        private void find_only_dat_files(FileInfo [] files)
+        {
+            for (int i = 0; i < files.Length; i++)
+            {
+                if(!files[i].Extension.Equals(".dat"))
+                {
+                    files[i] = null;
+                }
+            }
+        }
+
+        private bool find_file_name(FileInfo [] files, string name)
+        {
+            bool result = false;
+            foreach (FileInfo file in files)
+            {
+                if (file != null && file.Name.Equals(name))
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
+        }
+        public void load_game()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            DirectoryInfo info = new DirectoryInfo(Directory.GetCurrentDirectory());
+            FileInfo[] files = info.GetFiles();
+            
+            find_only_dat_files(files);
+            Console.WriteLine("Games Saved:");
+            DisplayClass.show_file_info(files);
+            Console.WriteLine("Input game name: ");
+            string name = $"{Console.ReadLine()}.dat";
+            if (name.Length > 0 && find_file_name(files, name))
+            {
+                using (FileStream fs = new FileStream(name, FileMode.OpenOrCreate))
+                {
+                    try
+                    {
+                        board = (BoardClass)formatter.Deserialize(fs);
+                        CurrentPlayer = (Player)formatter.Deserialize(fs);
+                        GameStarted = true;
+                    }
+                    catch (SerializationException)
+                    {
+                        Console.WriteLine("LoadError!");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("LoadError!!!");
+            }
+        }
+
         private void gameover(ChessClass chess)
         {
             GameStarted = false;
@@ -76,8 +162,7 @@ namespace ChessClasses
        
         public void game_part()
         {
-            Tuple<int, int> user_cord = get_user_cord("Input coords: ");
-            string message = null;
+            Tuple<int, int> user_cord = get_user_cord("Input coords (or msg): ");
             for (int i = 0; i < board.Chesses.Count && user_cord != null; i++)
             {                
                 if (board.Chesses[i].GetCords.Equals(user_cord))
@@ -115,17 +200,17 @@ namespace ChessClasses
                         }
                         else
                         {
-                            message = "Allied Chess!";
+                            message_buf.Push("Allied Chess!");
                         }
                     }
                     else
                     {
-                        message = "This step cant exist!";
+                        message_buf.Push("This step cant exist!");
                     }
                     break;
                 }
             }
-            DisplayClass.show_table(board, message);
+            message_buf.Push($"Move of {CurrentPlayer.ToString()}");
         }
 
         private bool CheckForCommands(string user_line)
@@ -134,7 +219,7 @@ namespace ChessClasses
             switch (user_line.ToLower())
             {
                 case "exit":
-                    Console.WriteLine("Game Ended!");
+                    message_buf.Push("Game Ended!");
                     GameStarted = false;
                     is_contains_command = true;
                     break;
@@ -144,12 +229,17 @@ namespace ChessClasses
                     break;
 
                 case "save":
-                    Console.WriteLine("Game Saved!");
+                    
                     is_contains_command = true;
-                    // ToDo
+                    save_game();
                     break;
 
-                
+                case "load":
+                    
+                    is_contains_command = true;
+                    load_game();
+                    Console.WriteLine("Game Loaded!");
+                    break;
             }
             return is_contains_command;
         }
@@ -215,7 +305,6 @@ namespace ChessClasses
                     board.add_chess(new King(i, 0, 0));
                     board.add_chess(new King(i, 7, 1));
                 }
-
             }
         }
 

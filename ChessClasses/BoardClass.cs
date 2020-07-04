@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace ChessClasses
 {
+    [Serializable]
     public class BoardClass
     {
         private int 
