@@ -4,7 +4,7 @@ using System.IO;
 
 namespace ChessClasses
 {
-    static public class DisplayClass
+    public static class DisplayClass
     {
         private static void print_alphas()
         {
@@ -55,7 +55,7 @@ namespace ChessClasses
                 Console.WriteLine(message_buf.Pop());
             }
             print_alphas();
-            bool flag = false;
+            bool flag;
             for (int i = 0; i < board.Height; i++, symb_ver--)
             {
                 Console.Write(symb_ver + " ");

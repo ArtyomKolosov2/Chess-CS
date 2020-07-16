@@ -5,7 +5,7 @@ namespace ChessClasses
     [Serializable]
     public class Player
     {
-        private int chess_code = 0;
+        private int chess_code;
         private string name = null;
 
         public Player() { }
@@ -17,10 +17,6 @@ namespace ChessClasses
         public Player(int chess_code)
         {
             this.chess_code = chess_code;
-        }
-        public void move(Tuple<int, int> cords)
-        {
-            ;
         }
         public override string ToString()
         {

@@ -5,13 +5,13 @@ using ChessClasses;
 
 namespace ChessC
 {
-    class Start
+    static class Start
     {
-        static void Main(string[] args)
+        static void Main()
         {
             set_console_settings(size:50);
             GameEngineClass gameEngine = new GameEngineClass();
-            string Command = null;
+            string Command;
             bool is_started = true;
             while (is_started)
             {
