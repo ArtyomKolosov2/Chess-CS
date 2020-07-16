@@ -5,25 +5,52 @@ using ChessClasses;
 
 namespace ChessC
 {
-    class Start
+    static class Start
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            set_console_settings(size:55);
+            set_console_settings(size:50);
             GameEngineClass gameEngine = new GameEngineClass();
-            gameEngine.initialize_board();
-            gameEngine.show_dict();
-            DisplayClass.show_table(gameEngine.GetBoard);
-            for (int i = 0; i < 300; i++)
+            string Command;
+            bool is_started = true;
+            while (is_started)
             {
-                gameEngine.move_chess();
+                Console.Write("Type command:\n" +
+                    "Start = Start Game\n" +
+                    "Info = Show Main info about program\n" +
+                    "Load = Load Saved Game\n" +
+                    "Exit = Exit From Game\n");
+                Command = Console.ReadLine();
+                switch (Command.ToLower())
+                {
+                    case "start":
+                        gameEngine.prepare_to_game();
+                        gameEngine.start_game();
+                        break;
+
+                    case "exit":
+                        is_started = false;
+                        break;
+
+                    case "info":
+                        DisplayClass.show_program_info();
+                        break;
+
+                    case "load":
+                        gameEngine.load_game();
+                        gameEngine.start_game();
+                        break;
+
+                    default:
+                        Console.WriteLine("Command Error!");
+                        break;
+                }
+                
             }
-            Console.Write('\n');
-            Console.ReadLine();
         }
 
         static void set_console_settings(
-            int sizeX=20, 
+            int sizeX=40, 
             int sizeY=12, 
             string font = "NSimSun",
             short size = 72)

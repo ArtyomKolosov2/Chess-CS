@@ -2,9 +2,10 @@
 
 namespace ChessClasses
 {
+    [Serializable]
     public class Player
     {
-        private int chess_code = 0;
+        private int chess_code;
         private string name = null;
 
         public Player() { }
@@ -17,13 +18,9 @@ namespace ChessClasses
         {
             this.chess_code = chess_code;
         }
-        public void move(Tuple<int, int> cords)
-        {
-            ;
-        }
         public override string ToString()
         {
-            return Name + $" chess_code:{chess_code}";
+            return chess_code != 0 ? "White" : "Black"; 
         }
         public string Name
         {
@@ -34,5 +31,6 @@ namespace ChessClasses
         {
             get {return chess_code; }
         }
+
     }
 }

@@ -1,28 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace ChessClasses
 {
     public class GameEngineClass
     {
         private BoardClass board;
-        private Player PlayerOne;
-        private Player PlayerTwo;
+        private Player PlayerOneBlack;
+        private Player PlayerTwoWhite;
+
+        public bool GameStarted { get; private set; } = false;
+        public Player CurrentPlayer { get; private set; } = null;
         private Dictionary<string, int> codes;
+        private Stack<string> message_buf;
         
         public GameEngineClass()
         {
             board = new BoardClass();
-            PlayerOne = new Player(0);
-            PlayerTwo = new Player(1);
+            PlayerOneBlack = new Player(0);
+            PlayerTwoWhite = new Player(1);
             codes = new Dictionary<string, int>();
+            message_buf = new Stack<string>();
             set_dict();
+        }
+
+        
+        public void prepare_to_game()
+        {
+            CurrentPlayer = PlayerTwoWhite;
+            GameStarted = true;
+            initialize_board();
+        }
+
+        public void start_game()
+        {
+            if (GameStarted)
+            {
+                message_buf.Push($"Move of {CurrentPlayer.ToString()}");
+                DisplayClass.show_table(board, message_buf);
+                while (GameStarted)
+                {
+                    game_part();
+                    DisplayClass.show_table(board, message_buf);
+                }
+            }
         }
 
         public string get_players_info()
         {
-            return $"{PlayerOne} {PlayerTwo}";
+            return $"{PlayerOneBlack} {PlayerTwoWhite}";
         }
 
         private void set_dict()
@@ -53,86 +82,195 @@ namespace ChessClasses
             return result;
         }
 
+        private void save_game()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            Console.WriteLine("Input game name: ");
+            string name = Console.ReadLine();
+            name = $"{(name.Length > 0 ? name : "game")}.dat";
+            using (FileStream fs = new FileStream(name, FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fs, board);
+                formatter.Serialize(fs, CurrentPlayer);
+                Console.WriteLine("Game Saved!");
+            }
+        }
+
+        private void find_only_dat_files(FileInfo [] files)
+        {
+            for (int i = 0; i < files.Length; i++)
+            {
+                if(!files[i].Extension.Equals(".dat"))
+                {
+                    files[i] = null;
+                }
+            }
+        }
+
+        private bool find_file_name(FileInfo [] files, string name)
+        {
+            bool result = false;
+            foreach (FileInfo file in files)
+            {
+                if (file != null && file.Name.Equals(name))
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
+        }
+        public void load_game()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            DirectoryInfo info = new DirectoryInfo(Directory.GetCurrentDirectory());
+            FileInfo[] files = info.GetFiles();
+            
+            find_only_dat_files(files);
+            Console.WriteLine("Games Saved:");
+            DisplayClass.show_file_info(files);
+            Console.WriteLine("Input game name: ");
+            string name = $"{Console.ReadLine()}.dat";
+            if (name.Length > 0 && find_file_name(files, name))
+            {
+                using (FileStream fs = new FileStream(name, FileMode.OpenOrCreate))
+                {
+                    try
+                    {
+                        board = (BoardClass)formatter.Deserialize(fs);
+                        CurrentPlayer = (Player)formatter.Deserialize(fs);
+                        GameStarted = true;
+                    }
+                    catch (SerializationException)
+                    {
+                        Console.WriteLine("LoadError!");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("LoadError!!!");
+            }
+        }
+
         private void gameover(ChessClass chess)
         {
+            GameStarted = false;
             DisplayClass.show_gameover_info(chess);
         }
        
-        public async void move_chess()
+        public void game_part()
         {
-            Tuple<int, int> user_cord = get_user_cord("Input coords: ");
+            Tuple<int, int> user_cord = get_user_cord("Input coords (or msg): ");
             for (int i = 0; i < board.Chesses.Count && user_cord != null; i++)
             {                
                 if (board.Chesses[i].GetCords.Equals(user_cord))
                 {
                     ChessClass chess = board.Chesses[i];
                     Tuple<int, int> new_cord = get_user_cord("Input new coords: ") ?? user_cord;
-                    bool step = await Task.Run(() => chess.check_step(new_cord, board));
+                    bool step = chess.check_step(new_cord, board) && chess.ChessCode == CurrentPlayer.ChessCode;
                     if (step) 
                     {
                         ChessClass second_chess = board.find_chess_by_coords(new_cord);
-                        bool possibe = await Task.Run(() => is_attack_possible(chess, second_chess));
+                        bool possibe = is_attack_possible(chess, second_chess);
                         if (possibe && second_chess != null)
                         {
                             board.Chesses.Remove(second_chess);
                             if (second_chess is King)
                             {
-                                await Task.Run(() => gameover(second_chess));
+                                gameover(second_chess);
                                 break;
                             }
                             chess.GetCords = new_cord;
-                            if (chess is Pawn)
+                            if (chess is Pawn pawn)
                             {
-                                Pawn pawn = (Pawn)chess;
                                 pawn.IsStarted = true;
                             }
+                            CurrentPlayer = CurrentPlayer.ChessCode != 0 ? PlayerOneBlack : PlayerTwoWhite;
                         }
                         else if (second_chess == null)
                         {
                             chess.GetCords = new_cord;
-                            if (chess is Pawn)
+                            if (chess is Pawn pawn)
                             {
-                                Pawn pawn = (Pawn)chess;
                                 pawn.IsStarted = true;
                             }
+                            CurrentPlayer = CurrentPlayer.ChessCode != 0 ? PlayerOneBlack : PlayerTwoWhite;
                         }
                         else
                         {
-                            Console.WriteLine("Allied Chess!");
+                            message_buf.Push("Allied Chess!");
                         }
                     }
                     else
                     {
-                        Console.WriteLine("This step cant exist!");
+                        message_buf.Push("This step cant exist!");
                     }
                     break;
                 }
             }
-            DisplayClass.show_table(board);
+            message_buf.Push($"Move of {CurrentPlayer.ToString()}");
         }
+
+        private bool CheckForCommands(string user_line)
+        {
+            bool is_contains_command = false;
+            switch (user_line.ToLower())
+            {
+                case "exit":
+                    message_buf.Push("Game Ended!");
+                    GameStarted = false;
+                    is_contains_command = true;
+                    break;
+
+                case "info":
+                    DisplayClass.show_program_info();
+                    break;
+
+                case "save":
+                    
+                    is_contains_command = true;
+                    save_game();
+                    break;
+
+                case "load":
+                    
+                    is_contains_command = true;
+                    load_game();
+                    Console.WriteLine("Game Loaded!");
+                    break;
+            }
+            return is_contains_command;
+        }
+
         private Tuple<int, int> get_user_cord(string message)
         {
             Console.WriteLine(message);
-            Tuple<int, int> result;
-            string[] user_choice = Console.ReadLine().Split();
-            try
+            string user_line = Console.ReadLine();
+            bool is_command = CheckForCommands(user_line);
+            Tuple<int, int> result = null;
+            string[] user_choice = user_line.Split();
+            if (!is_command)
             {
-                int x = codes[user_choice[0].ToLower()] - 1;
-                int y = board.Height - codes[user_choice[1].ToLower()];
-                result = new Tuple<int, int>(x, y);
-            }
-            catch (KeyNotFoundException)
-            {
-                Console.WriteLine("KeyError!");
-                result = null;
-            }
+                try
+                {
+                    int x = codes[user_choice[0].ToLower()] - 1;
+                    int y = board.Height - codes[user_choice[1].ToLower()];
+                    result = new Tuple<int, int>(x, y);
+                }
+                catch (KeyNotFoundException)
+                {
+                    Console.WriteLine("KeyError!");
+                    result = null;
+                }
 
-            catch (IndexOutOfRangeException)
-            {
-                Console.WriteLine("IndexError!");
-                result = null;
+                catch (IndexOutOfRangeException)
+                {
+                    Console.WriteLine("IndexError!");
+                    result = null;
+                }
             }
-            
             return result;
         }
         public void initialize_board()
@@ -167,7 +305,6 @@ namespace ChessClasses
                     board.add_chess(new King(i, 0, 0));
                     board.add_chess(new King(i, 7, 1));
                 }
-
             }
         }
 
