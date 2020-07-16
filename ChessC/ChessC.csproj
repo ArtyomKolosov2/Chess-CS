@@ -8,6 +8,8 @@
     <PackageIcon>chess_icon-icons.com_65163.ico</PackageIcon>
     <PackageIconUrl />
     <ApplicationIcon>1.ico</ApplicationIcon>
+    <Product>ConsoleChessCS</Product>
+    <AssemblyName>ChessCS</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
