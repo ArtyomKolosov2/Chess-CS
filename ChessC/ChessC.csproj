@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -24,14 +24,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ChessClasses\ChessClasses.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\..\..\Desktop\chess_icon-icons.com_65163.ico">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ChessClasses\" />
   </ItemGroup>
 
 </Project>
